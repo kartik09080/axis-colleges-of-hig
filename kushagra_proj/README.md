@@ -118,9 +118,10 @@ Without an endpoint the project runs in **demo mode**: data stays in the browser
 ## 6. How to publish (make it live)
 
 **Option 1 — GitHub Pages (already set up in this repository)**
-- The workflow `.github/workflows/static.yml` publishes only this `kushagra_proj` folder.
+- The workflow `.github/workflows/static.yml` publishes the repository. A root `index.html` redirects visitors to `kushagra_proj/index.html`.
 - It runs automatically when the branch is merged into `main` (or when run manually from the Actions tab).
-- Live address: **https://kartik09080.github.io/axis-colleges-of-hig/**
+- Live address: **https://kartik09080.github.io/axis-colleges-of-hig/** (opens the college website)
+- Direct address: https://kartik09080.github.io/axis-colleges-of-hig/kushagra_proj/
 - Update the website later: change files (or download a new `data/site-data.js` from the admin panel), commit and merge into `main`. The site updates in 1–2 minutes.
 
 **Option 2 — Netlify Drop (no GitHub needed)**
