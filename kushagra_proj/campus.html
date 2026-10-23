@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!-- ==========================================================================
+     CAMPUS & EVENTS PAGE - campus.html
+     Gallery (filter + lightbox), events list and event pass registration.
+     ========================================================================== -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Campus photo gallery, upcoming events, fests and workshops at Axis Colleges, Kanpur.">
+  <title>Campus Gallery &amp; Events | Axis Colleges of Higher Education</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="site-topbar"></div>
+  <header id="site-header" class="site-header"></header>
+
+  <main>
+
+    <section class="page-banner">
+      <div class="container">
+        <div class="breadcrumb"><a href="index.html">Home</a> / Campus &amp; Events</div>
+        <h1>Campus Gallery &amp; Student Events</h1>
+        <p>Experience vibrant student life, modern labs, robotics hackathons, cultural festivals, and sports tournaments.</p>
+      </div>
+    </section>
+
+    <!-- ===== PHOTO GALLERY ===== -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Photo Tour</span>
+          <h2>Explore Our 65-Acre Green Campus</h2>
+          <p>Filter photos by category or click on any photograph to open the full-size viewer.</p>
+        </div>
+        <div class="filter-pills" id="galleryFilters" style="justify-content:center;margin-bottom:1.8rem" aria-label="Filter photos"></div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+      </div>
+    </section>
+
+    <!-- ===== EVENTS ===== -->
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Upcoming Events</span>
+          <h2>Campus Events &amp; Workshops</h2>
+          <p>Students can register online below to reserve their participation pass.</p>
+        </div>
+        <div class="event-list" id="eventList"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <!-- ===== LIGHTBOX (full-size photo viewer) ===== -->
+  <div class="modal-overlay" id="lightbox" aria-modal="true" role="dialog" aria-labelledby="lbTitle">
+    <div class="modal-box lightbox-box">
+      <div class="modal-header">
+        <h3 id="lbTitle" style="color:#fff">Campus Photo</h3>
+        <button class="modal-close" type="button" data-close="lightbox" aria-label="Close">×</button>
+      </div>
+      <img class="lightbox-img" id="lbImg" src="" alt="">
+      <div class="lightbox-footer">
+        <button class="btn btn-ghost btn-sm" id="lbPrev" type="button">← Prev</button>
+        <span id="lbCounter" style="color:#cbd5e1"></span>
+        <button class="btn btn-ghost btn-sm" id="lbNext" type="button">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EVENT PASS REGISTRATION POPUP ===== -->
+  <div class="modal-overlay" id="eventRegModal" aria-modal="true" role="dialog" aria-labelledby="regEventTitle">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div>
+          <span class="section-tag" style="margin:0">Student Event Registration</span>
+          <h3 id="regEventTitle">Selected Event</h3>
+        </div>
+        <button class="modal-close" type="button" data-close="eventRegModal" aria-label="Close">×</button>
+      </div>
+
+      <form id="eventRegForm" novalidate>
+        <input type="hidden" id="regEventId" value="">
+        <div class="form-group">
+          <label for="regName">Student Full Name <span class="required-star">*</span></label>
+          <input class="form-control" type="text" id="regName" autocomplete="name">
+          <div class="error-msg" id="err_regName"></div>
+        </div>
+        <div class="form-group">
+          <label for="regRoll">Roll No. / Course &amp; Year <span class="required-star">*</span></label>
+          <input class="form-control" type="text" id="regRoll" placeholder="e.g. 2301CS045 / B.Tech CSE 2nd Year">
+          <div class="error-msg" id="err_regRoll"></div>
+        </div>
+        <div class="form-group">
+          <label for="regEmail">Email ID <span class="required-star">*</span></label>
+          <input class="form-control" type="email" id="regEmail" autocomplete="email">
+          <div class="error-msg" id="err_regEmail"></div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Confirm Event Pass</button>
+      </form>
+
+      <div id="regSuccess" hidden>
+        <div class="alert-box alert-success">Registration successful! Show this pass ID at the entry desk.</div>
+        <div class="pass-box">
+          <div>Your Pass ID</div>
+          <strong id="passCode">PASS</strong>
+          <div style="margin-top:0.4rem;color:var(--text-muted)" id="passEvent"></div>
+        </div>
+        <button class="btn btn-ghost btn-block" type="button" data-close="eventRegModal" style="margin-top:1rem">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/site-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

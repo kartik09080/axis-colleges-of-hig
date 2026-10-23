@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<!-- ==========================================================================
+     ADMISSIONS & CONTACT PAGE - admissions.html
+     Online application form (validated), application tracking, enquiry form.
+     Course can be pre-selected with ?course=btech-cse (set by course cards).
+     ========================================================================== -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Apply online for Axis Colleges admissions 2026-27, track your application and contact the admission office.">
+  <title>Admissions &amp; Contact | Axis Colleges of Higher Education</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="site-topbar"></div>
+  <header id="site-header" class="site-header"></header>
+
+  <main>
+
+    <section class="page-banner">
+      <div class="container">
+        <div class="breadcrumb"><a href="index.html">Home</a> / Admissions &amp; Contact</div>
+        <h1>Online Admission &amp; Contact Portal</h1>
+        <p>Follow the simple 4-step admission procedure or submit your online inquiry form for Academic Session <span data-bind="settings.session">2026–27</span>.</p>
+      </div>
+    </section>
+
+    <!-- 4-step process (from data.admissionSteps) -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">How to Apply</span>
+          <h2>4-Step Admission Process</h2>
+        </div>
+        <div class="steps-grid" id="admissionSteps"></div>
+      </div>
+    </section>
+
+    <!-- Online application form -->
+    <section class="section section-alt" id="apply">
+      <div class="container split-grid" style="align-items:start">
+
+        <div>
+          <div class="alert-box" id="admissionAlert" hidden></div>
+
+          <!-- The form -->
+          <form class="form-card" id="admissionForm" novalidate>
+            <h2 style="margin-bottom:0.3rem">Online Admission Application Form</h2>
+            <p class="muted" style="margin-bottom:1.2rem">Fields marked with <span class="required-star">*</span> are mandatory.</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="a_name">Applicant Full Name <span class="required-star">*</span></label>
+                <input class="form-control" type="text" id="a_name" autocomplete="name">
+                <div class="error-msg" id="err_a_name"></div>
+              </div>
+              <div class="form-group">
+                <label for="a_email">Email Address <span class="required-star">*</span></label>
+                <input class="form-control" type="email" id="a_email" autocomplete="email">
+                <div class="error-msg" id="err_a_email"></div>
+              </div>
+              <div class="form-group">
+                <label for="a_mobile">10-Digit Mobile Number <span class="required-star">*</span></label>
+                <input class="form-control" type="tel" id="a_mobile" maxlength="12" placeholder="98390 12345" autocomplete="tel">
+                <div class="error-msg" id="err_a_mobile"></div>
+              </div>
+              <div class="form-group">
+                <label for="a_dob">Date of Birth <span class="required-star">*</span></label>
+                <input class="form-control" type="date" id="a_dob">
+                <div class="error-msg" id="err_a_dob"></div>
+              </div>
+              <div class="form-group full-width">
+                <label for="a_course">Course Applying For <span class="required-star">*</span></label>
+                <select class="form-control" id="a_course"></select>
+                <div class="error-msg" id="err_a_course"></div>
+              </div>
+              <div class="form-group">
+                <label for="a_marks">12th / Qualifying Marks (%) <span class="required-star">*</span></label>
+                <input class="form-control" type="number" id="a_marks" min="0" max="100" step="0.01">
+                <div class="error-msg" id="err_a_marks"></div>
+              </div>
+              <div class="form-group">
+                <label for="a_city">City &amp; State <span class="required-star">*</span></label>
+                <input class="form-control" type="text" id="a_city" placeholder="e.g. Lucknow, UP">
+                <div class="error-msg" id="err_a_city"></div>
+              </div>
+              <fieldset class="form-group full-width" style="border:none">
+                <span class="field-label">Gender</span>
+                <div class="radio-group">
+                  <label><input type="radio" name="a_gender" value="Male"> Male</label>
+                  <label><input type="radio" name="a_gender" value="Female"> Female</label>
+                  <label><input type="radio" name="a_gender" value="Other"> Other</label>
+                </div>
+              </fieldset>
+              <div class="form-group full-width">
+                <label for="a_message">Questions / Hostel or Transport Requirement (optional)</label>
+                <textarea class="form-control" id="a_message" rows="3"></textarea>
+              </div>
+              <div class="form-group full-width">
+                <label class="checkbox-row" for="a_consent">
+                  <input type="checkbox" id="a_consent">
+                  <span>I confirm that the details above are true, and I authorize Axis Colleges to contact me regarding admission counseling. <span class="required-star">*</span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="admin-actions" style="margin-top:0.6rem">
+              <button class="btn btn-primary" type="submit">Submit Admission Form</button>
+              <button class="btn btn-ghost" type="reset">Reset Fields</button>
+            </div>
+          </form>
+
+          <!-- Success panel (shown after a valid submit) -->
+          <div class="form-card" id="admissionSuccess" hidden>
+            <div class="alert-box alert-success">Application submitted successfully! Please save your reference number.</div>
+            <div class="pass-box">
+              <div>Your Reference ID</div>
+              <strong id="refId">AXIS</strong>
+              <div style="margin-top:0.4rem;color:var(--text-muted)" id="refCourse"></div>
+            </div>
+            <p style="margin-top:1rem">Our admission counselor will contact you on your mobile number. You can track the status of your application below.</p>
+            <button class="btn btn-ghost btn-block" type="button" id="applyAnother">Submit Another Application</button>
+          </div>
+
+          <!-- Track application status -->
+          <form class="form-card" id="trackForm" novalidate style="margin-top:1.5rem">
+            <h3 style="margin-bottom:0.8rem">Track Your Application</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="trackRef">Reference ID</label>
+                <input class="form-control" type="text" id="trackRef" placeholder="AXIS-2026-12345">
+              </div>
+              <div class="form-group">
+                <label for="trackMobile">Mobile Number</label>
+                <input class="form-control" type="tel" id="trackMobile">
+              </div>
+            </div>
+            <button class="btn btn-navy btn-sm" type="submit">Check Status</button>
+            <div id="trackResult" class="tracker-result"></div>
+          </form>
+        </div>
+
+        <!-- Right column: contact info and documents -->
+        <aside>
+          <div class="card card-body" style="margin-bottom:1.2rem">
+            <h3 style="margin-bottom:0.6rem">📍 Reach Us</h3>
+            <ul class="contact-list">
+              <li><strong>Main Campus (Rooma)</strong><span data-bind="settings.address">Milestone 478, NH-2, Rooma, Kanpur, Uttar Pradesh — 209402</span></li>
+              <li><strong>Helpline</strong><a href="tel:+919839012345" data-bind="settings.phone" data-bind-href="settings.phone" data-prefix="tel:">+91 98390 12345</a></li>
+              <li><strong>Toll-Free</strong><span data-bind="settings.tollFree">1800-313-2464</span></li>
+              <li><strong>Admissions Email</strong><a href="mailto:admission@axiscolleges.edu.in" data-bind="settings.admissionsEmail" data-bind-href="settings.admissionsEmail" data-prefix="mailto:">admission@axiscolleges.edu.in</a></li>
+              <li><strong>Visiting Hours</strong><span data-bind="settings.officeHours">Monday – Saturday: 9:00 AM to 5:00 PM</span></li>
+            </ul>
+          </div>
+
+          <div class="card card-body" style="margin-bottom:1.2rem">
+            <h3 style="margin-bottom:0.6rem">📄 Documents Required at Counseling</h3>
+            <ul class="contact-list" id="documentList"></ul>
+          </div>
+
+          <!-- Enquiry form -->
+          <form class="card card-body" id="contactForm" novalidate>
+            <h3 id="contact" style="margin-bottom:0.6rem">✉️ Send an Enquiry</h3>
+            <div class="alert-box" id="contactAlert" hidden></div>
+            <div class="form-group">
+              <label for="c_name">Your Name <span class="required-star">*</span></label>
+              <input class="form-control" type="text" id="c_name">
+              <div class="error-msg" id="err_c_name"></div>
+            </div>
+            <div class="form-group">
+              <label for="c_email">Email <span class="required-star">*</span></label>
+              <input class="form-control" type="email" id="c_email">
+              <div class="error-msg" id="err_c_email"></div>
+            </div>
+            <div class="form-group">
+              <label for="c_phone">Phone (optional)</label>
+              <input class="form-control" type="tel" id="c_phone">
+            </div>
+            <div class="form-group">
+              <label for="c_subject">Subject</label>
+              <select class="form-control" id="c_subject">
+                <option>Admissions</option>
+                <option>Fee Structure &amp; Scholarship</option>
+                <option>Placements</option>
+                <option>Hostel &amp; Transport</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="c_message">Message <span class="required-star">*</span></label>
+              <textarea class="form-control" id="c_message" rows="4"></textarea>
+              <div class="error-msg" id="err_c_message"></div>
+            </div>
+            <button class="btn btn-primary btn-block" type="submit">Send Enquiry</button>
+          </form>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="site-footer" class="site-footer"></footer>
+
+  <script src="data/site-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
