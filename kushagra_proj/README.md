@@ -23,12 +23,27 @@ kushagra_proj/
 │   └── site-data.js    THE CONTENT FILE: courses, notices, events, gallery, FAQs, settings, etc.
 ├── images/             Local campus photos (work offline)
 ├── .nojekyll           Tells GitHub Pages to serve the files as they are
+├── start-website.bat   One-click launcher for Windows
+├── start-website.command  One-click launcher for macOS
+├── start-website.sh    One-click launcher for Linux
 └── README.md           This guide
 ```
 
 ---
 
 ## 2. How to run it
+
+**Easiest — one click (no typing):**
+| Computer | File to double-click | What happens |
+|----------|----------------------|--------------|
+| Windows  | `start-website.bat`  | Starts the server and opens http://localhost:8000 |
+| macOS    | `start-website.command` | Opens Terminal, starts the server, opens the browser (first time: right-click → Open) |
+| Linux    | `start-website.sh` (or `./start-website.sh`) | Same as above |
+
+Keep the launcher window open while you use the website. Close it (or press Ctrl + C) to stop.
+Needs **Python 3** installed (Windows: tick "Add to PATH" during install). If Python is missing, the home page opens directly from the file instead.
+
+**Simplest of all:** double-click `index.html` (works without any server; admin panel is `admin.html`).
 
 **Option A — double-click (no server needed)**
 Open `index.html` in Chrome / Edge / Firefox. Use `admin.html` for the staff panel.
