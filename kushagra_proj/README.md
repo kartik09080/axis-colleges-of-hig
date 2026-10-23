@@ -23,6 +23,8 @@ kushagra_proj/
 │   └── site-data.js    THE CONTENT FILE: courses, notices, events, gallery, FAQs, settings, etc.
 ├── images/             Local campus photos (work offline)
 ├── .nojekyll           Tells GitHub Pages to serve the files as they are
+├── 404.html            Page shown for missing links
+├── robots.txt          Search engine settings (hides admin page)
 ├── start-website.bat   One-click launcher for Windows
 ├── start-website.command  One-click launcher for macOS
 ├── start-website.sh    One-click launcher for Linux
@@ -40,7 +42,7 @@ kushagra_proj/
 | macOS    | `start-website.command` | Opens Terminal, starts the server, opens the browser (first time: right-click → Open) |
 | Linux    | `start-website.sh` (or `./start-website.sh`) | Same as above |
 
-Keep the launcher window open while you use the website. To share with someone on the **same Wi-Fi**, the Windows launcher shows an address like `http://192.168.1.5:8000` — send that to them. For people outside your network, upload the folder to Netlify Drop (see section 6). Close it (or press Ctrl + C) to stop.
+Keep the launcher window open while you use the website. To share with someone on the **same Wi-Fi**, the Windows launcher shows an address like `http://192.168.1.5:8000` — send that to them. For people outside your network, share the GitHub Pages link (see section 6). Close it (or press Ctrl + C) to stop.
 Needs **Python 3** installed (Windows: tick "Add to PATH" during install). If Python is missing, the home page opens directly from the file instead.
 
 **Simplest of all:** double-click `index.html` (works without any server; admin panel is `admin.html`).
@@ -115,13 +117,21 @@ Without an endpoint the project runs in **demo mode**: data stays in the browser
 
 ## 6. How to publish (make it live)
 
-1. Make your edits in the admin panel and click **Download site-data.js**.
-2. Replace `kushagra_proj/data/site-data.js` with the downloaded file.
-3. Upload the whole `kushagra_proj` folder to any static host:
-   - **Netlify Drop** — drag the folder onto <https://app.netlify.com/drop>.
-   - **GitHub Pages** — this repository already has a Pages workflow that publishes the repo, so the site is served at `/kushagra_proj/` after the branch is merged to `main`.
-   - Any college web-hosting account (upload with FTP / cPanel File Manager).
-4. Share the link. Done.
+**Option 1 — GitHub Pages (already set up in this repository)**
+- The workflow `.github/workflows/static.yml` publishes only this `kushagra_proj` folder.
+- It runs automatically when the branch is merged into `main` (or when run manually from the Actions tab).
+- Live address: **https://kartik09080.github.io/axis-colleges-of-hig/**
+- Update the website later: change files (or download a new `data/site-data.js` from the admin panel), commit and merge into `main`. The site updates in 1–2 minutes.
+
+**Option 2 — Netlify Drop (no GitHub needed)**
+- Open <https://app.netlify.com/drop> and drag the `kushagra_proj` folder onto the page. You get a public link instantly.
+
+**Option 3 — College web hosting:** upload all files inside `kushagra_proj` to the `public_html` folder with FTP or cPanel File Manager.
+
+**Before going live, change these:**
+1. Admin password: `data/site-data.js` → `settings.adminPassword` (default `axis@2026` is public).
+2. Online form endpoint (optional): `settings.formEndpoint` → paste a Formspree URL to receive applications by email.
+3. Check contact details and fees in `data/site-data.js` (or in the admin panel).
 
 **Photos:** upload new photos into `images/` and type the path (e.g. `images/new-photo.jpg`) in the admin gallery form.
 
