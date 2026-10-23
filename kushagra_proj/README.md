@@ -40,7 +40,7 @@ kushagra_proj/
 | macOS    | `start-website.command` | Opens Terminal, starts the server, opens the browser (first time: right-click → Open) |
 | Linux    | `start-website.sh` (or `./start-website.sh`) | Same as above |
 
-Keep the launcher window open while you use the website. Close it (or press Ctrl + C) to stop.
+Keep the launcher window open while you use the website. To share with someone on the **same Wi-Fi**, the Windows launcher shows an address like `http://192.168.1.5:8000` — send that to them. For people outside your network, upload the folder to Netlify Drop (see section 6). Close it (or press Ctrl + C) to stop.
 Needs **Python 3** installed (Windows: tick "Add to PATH" during install). If Python is missing, the home page opens directly from the file instead.
 
 **Simplest of all:** double-click `index.html` (works without any server; admin panel is `admin.html`).

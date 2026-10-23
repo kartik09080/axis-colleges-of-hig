@@ -1,45 +1,46 @@
 @echo off
 rem ==========================================================================
-rem  AXIS COLLEGES WEBSITE - ONE-CLICK START (Windows)
-rem  Double-click this file. It starts a small local server in this folder
-rem  and opens the website in your browser at http://localhost:8000
-rem  Needs Python 3 (https://www.python.org/downloads/ - tick "Add to PATH").
-rem  If Python is not found, the home page simply opens directly instead.
+rem  AXIS COLLEGES WEBSITE - SIMPLE START (Windows)
+rem  Double-click this file to run the website.
+rem  Your browser opens http://localhost:8000
+rem  Others on the same Wi-Fi can open the address shown below.
+rem  Close this window to stop the website.
 rem ==========================================================================
 
-title Axis Colleges Website Server
+title Axis Colleges Website
 cd /d "%~dp0"
-set PORT=8000
 
-rem --- Find Python (the "py" launcher or "python") ---
+rem Choose Python (the "python" command or the "py" launcher)
 set PY=
-where py >nul 2>nul && set PY=py -3
-if not defined PY (
-  where python >nul 2>nul && set PY=python
-)
+where python >nul 2>nul && set PY=python
+if "%PY%"=="" where py >nul 2>nul && set PY=py -3
 
-if not defined PY (
-  echo.
-  echo  Python was not found on this computer.
-  echo  Opening the website directly from the file instead...
-  echo  ^(Admin panel and all features still work in this mode.^)
+if "%PY%"=="" (
+  echo Python is not installed. Opening index.html instead...
+  echo ^(To run the full website, install Python from python.org and tick "Add to PATH".^)
   start "" "%~dp0index.html"
   pause
-  exit /b 0
+  exit /b
 )
 
 echo.
-echo  ============================================================
-echo   Axis Colleges Website is starting...
-echo   Open this address in your browser:  http://localhost:%PORT%
-echo   Staff admin panel:                  http://localhost:%PORT%/admin.html
-echo   Admin password (default):           axis@2026
-echo   To STOP the website, close this window.
-echo  ============================================================
+echo  ==============================================
+echo   Axis Colleges Website is running
+echo  ==============================================
+echo   On this computer:    http://localhost:8000
+echo   Admin panel:         http://localhost:8000/admin.html
+echo   Admin password:      axis@2026
+echo.
+echo   To show others on the same Wi-Fi, give them
+echo   one of these addresses (replace with your IP):
+ipconfig | findstr /i "IPv4"
+echo.
+echo   Close this window to stop the website.
+echo  ==============================================
 echo.
 
-rem Open the browser after 2 seconds (gives the server time to start)
-start "" cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:%PORT%"
+rem Open the browser after 2 seconds, once the server has started
+start "" cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:8000"
 
-%PY% -m http.server %PORT% --bind 127.0.0.1
+%PY% -m http.server 8000 --bind 0.0.0.0
 pause
