@@ -62,6 +62,22 @@ docker run -p 8000:8000 -v axis-drive-data:/data \
 
 Open http://localhost:8000. On a real HTTPS domain, also set `-e DRIVE_COOKIE_SECURE=1`.
 
+## Use it on Android (phone app)
+
+Axis Drive is a web app that can be installed like a phone app. It needs the cloud server
+(Render or similar) to be online, because your files live on the server.
+
+**Install as an app (no APK needed):**
+1. Open the Axis Drive website in **Chrome** on your Android phone (it must be an `https://` address).
+2. Tap the **⋮** menu, then **Install app** (or **Add to Home screen**).
+3. The Axis Drive icon appears on your home screen and opens full-screen.
+
+**Make a real APK file (optional):**
+1. Put the site online (see *Run it on the cloud*) and copy its `https://` address.
+2. Go to https://www.pwabuilder.com, paste the address, and click **Start**.
+3. Choose **Android** and then **Generate package**. Download the zip and install the `.apk` on your phone
+   (allow installing from unknown sources the first time).
+
 ## Settings (environment variables)
 
 | Variable | Default | Meaning |
@@ -107,3 +123,4 @@ data_store/       Created at runtime. Holds your files. Not stored in Git.
 - Run only **one** server process. The login-attempt limit is kept in memory, so several processes would each count separately. The Docker image already runs one process.
 - This is a demo-grade app. Before you store important or private data, add HTTPS, regular backups of the data folder, and a review of the security settings.
 - GitHub Pages only serves static files, so it cannot run this app. Use the launcher or a cloud host.
+- The phone app is a web app (PWA). It needs internet to reach your server. Files are not cached on the phone.

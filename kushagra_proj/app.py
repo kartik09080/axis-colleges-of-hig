@@ -30,6 +30,7 @@ import media
 
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 GB = 1024 ** 3
+mimetypes.add_type('application/manifest+json', '.webmanifest')
 EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]{2,}$')
 
 # Login protection: after 5 wrong passwords, the email is locked for 15 minutes.
