@@ -130,6 +130,8 @@ class AuthTests(DriveTestCase):
         self.assertEqual(bare.get('/api/me', headers=auth).status_code, 200)
         self.assertEqual(bare.get('/api/list', headers=auth).status_code, 200)
         self.assertEqual(bare.get('/api/me', headers={'Authorization': 'Bearer ' + token + 'x'}).status_code, 401)
+        # the custom header works too (in case a proxy removes Authorization)
+        self.assertEqual(bare.get('/api/me', headers={'X-Drive-Token': token}).status_code, 200)
 
     def test_api_requires_login(self):
         self.assertEqual(self.app.test_client().get('/api/list').status_code, 401)
@@ -364,6 +366,9 @@ class PageTests(DriveTestCase):
         self.assertIn(b'Axis Drive', c.get('/').data)
         self.assertEqual(c.get('/app.js').status_code, 200)
         self.assertEqual(c.get('/style.css').status_code, 200)
+        page = c.get('/').get_data(as_text=True)
+        self.assertNotIn('__ASSET_VERSION__', page)
+        self.assertRegex(page, r'app\.js\?v=[0-9a-f]{12}')
 
 
 if __name__ == '__main__':

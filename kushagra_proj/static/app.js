@@ -74,9 +74,10 @@
       else localStorage.removeItem(TOKEN_KEY);
     } catch (_) { /* storage blocked: memory copy is still used */ }
   }
+  // Sent twice (standard header + custom header) in case a proxy drops one of them
   function authHeaders() {
     const token = getToken();
-    return token ? { Authorization: 'Bearer ' + token } : {};
+    return token ? { Authorization: 'Bearer ' + token, 'X-Drive-Token': token } : {};
   }
 
   async function api(path, options = {}) {
@@ -707,7 +708,10 @@
       xhr.open('POST', '/api/files');
       xhr.setRequestHeader('X-Drive-Client', '1');
       const token = getToken();
-      if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+      if (token) {
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.setRequestHeader('X-Drive-Token', token);
+      }
       xhr.upload.onprogress = (e) => { if (e.lengthComputable) ui.setProgress(e.loaded / e.total); };
       xhr.onload = () => {
         let data = {};

@@ -11,6 +11,7 @@ Features
 Run it:      python app.py          then open http://localhost:8000
 Tests:       python -m unittest discover -s tests
 """
+import hashlib
 import mimetypes
 import os
 import re
@@ -20,7 +21,7 @@ import uuid
 from datetime import timedelta
 from functools import wraps
 
-from flask import Flask, abort, g, jsonify, request, send_file, session
+from flask import Flask, Response, abort, g, jsonify, request, send_file, session
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -41,6 +42,24 @@ _login_failures = {}
 # ---------------------------------------------------------------------------
 # Small helper functions
 # ---------------------------------------------------------------------------
+
+def asset_version():
+    """Short fingerprint of the front-end files. Used in asset URLs (app.js?v=...),
+    so browsers and proxies never keep serving an old copy after an update."""
+    digest = hashlib.sha256()
+    for name in ('app.js', 'share.js', 'style.css'):
+        with open(os.path.join(APP_DIR, 'static', name), 'rb') as fh:
+            digest.update(fh.read())
+    return digest.hexdigest()[:12]
+
+
+def page_response(filename, version):
+    with open(os.path.join(APP_DIR, 'static', filename), encoding='utf-8') as fh:
+        html = fh.read().replace('__ASSET_VERSION__', version)
+    response = Response(html, mimetype='text/html')
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
+
 
 def err(message, code=400):
     """Send an error to the browser as JSON, e.g. {"error": "..."}."""
@@ -120,9 +139,10 @@ def current_uid():
     """User id from the Authorization header (Bearer token) or, as a fallback, the session cookie."""
     from flask import current_app
     auth = request.headers.get('Authorization', '')
-    if auth.startswith('Bearer '):
+    token = auth[7:] if auth.startswith('Bearer ') else request.headers.get('X-Drive-Token')
+    if token:
         try:
-            return current_app.config['TOKEN_SERIALIZER'].loads(auth[7:], max_age=TOKEN_MAX_AGE)
+            return current_app.config['TOKEN_SERIALIZER'].loads(token, max_age=TOKEN_MAX_AGE)
         except BadSignature:
             return None
     return session.get('uid')
@@ -358,13 +378,15 @@ def create_app(test_config=None):
     # Pages
     # -----------------------------------------------------------------------
 
+    version = asset_version()
+
     @app.get('/')
     def home_page():
-        return app.send_static_file('index.html')
+        return page_response('index.html', version)
 
     @app.get('/s/<token>')
     def share_page(token):
-        return app.send_static_file('share.html')
+        return page_response('share.html', version)
 
     # -----------------------------------------------------------------------
     # Account: sign up, log in, log out
