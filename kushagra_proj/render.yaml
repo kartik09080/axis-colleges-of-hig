@@ -1,0 +1,29 @@
+# Render Blueprint for Axis Drive.
+# Render reads blueprints from the repository root. If you deploy from this folder,
+# set "Root Directory" to kushagra_proj in the Render dashboard, and use the settings below.
+#
+# Persistent disks need a paid instance (the "starter" plan below). Without a disk,
+# uploaded files would be lost every time the service restarts.
+services:
+  - type: web
+    name: axis-drive
+    runtime: docker
+    rootDir: kushagra_proj
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: DRIVE_DATA_DIR
+        value: /data
+      - key: DRIVE_SECRET_KEY
+        generateValue: true
+      - key: DRIVE_COOKIE_SECURE
+        value: "1"
+      - key: DRIVE_QUOTA_GB
+        value: "15"
+      - key: DRIVE_MAX_UPLOAD_MB
+        value: "2048"
+    disk:
+      name: drive-data
+      mountPath: /data
+      sizeGB: 10

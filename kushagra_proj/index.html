@@ -1,130 +1,23 @@
 <!DOCTYPE html>
-<!-- ==========================================================================
-     HOME PAGE - index.html
-     Header, top bar and footer are built by script.js (same on every page).
-     Text marked with data-bind comes from data/site-data.js.
-     ========================================================================== -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Axis Colleges of Higher Education, Rooma, Kanpur - B.Tech, BCA, MCA, BBA, MBA and B.Pharm admissions 2026-27.">
-  <title>Axis Colleges of Higher Education | Home</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Ccircle cx=%2732%27 cy=%2732%27 r=%2730%27 fill=%27%230b1d3a%27/%3E%3Ctext x=%2732%27 y=%2744%27 font-size=%2736%27 font-family=%27Arial%27 font-weight=%27bold%27 fill=%27white%27 text-anchor=%27middle%27%3EA%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css">
+  <title>Axis Drive</title>
+  <style>
+    body { font-family: "Segoe UI", Roboto, Arial, sans-serif; background: #f8f9fa; color: #202124; margin: 0;
+           min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    main { background: #fff; border: 1px solid #dadce0; border-radius: 14px; padding: 30px; max-width: 560px; line-height: 1.55; }
+    h1 { font-size: 22px; font-weight: 500; margin-top: 0; }
+    code { background: #f1f3f4; padding: 2px 6px; border-radius: 4px; }
+  </style>
 </head>
 <body>
-
-  <!-- Shared top bar, header (menu) -->
-  <div id="site-topbar"></div>
-  <header id="site-header" class="site-header"></header>
-
   <main>
-
-    <!-- ===== HERO SECTION ===== -->
-    <section class="hero" data-bind-bg="hero.image">
-      <div class="container">
-        <div class="hero-content">
-          <span class="hero-pill" data-bind="hero.badge">Admissions Open 2026–27 • Merit Scholarships Available</span>
-          <h1 data-bind="hero.title">Empowering Future Engineers, Innovators &amp; Leaders</h1>
-          <p data-bind="hero.subtitle">Located across a lush 65-acre campus in Rooma, Kanpur, Axis Colleges combines rigorous academic foundations, modern laboratories, and industry-aligned training.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="courses.html" data-bind="hero.primaryText" data-bind-href="hero.primaryLink">Explore Programs</a>
-            <a class="btn btn-outline-light" href="admissions.html" data-bind="hero.secondaryText" data-bind-href="hero.secondaryLink">Online Admission Form</a>
-          </div>
-          <div class="hero-badges">
-            <span>AICTE New Delhi Approved</span>
-            <span>AKTU Lucknow Code: 719</span>
-            <span>CSJMU Kanpur Affiliated</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== ANIMATED STATS (filled from data.stats) ===== -->
-    <section class="stats-strip" id="statsStrip" aria-label="College highlights">
-      <div class="container"><p>Loading highlights…</p></div>
-    </section>
-
-    <!-- ===== NOTICE BOARD + PLACEMENT SPOTLIGHT ===== -->
-    <section class="section section-alt">
-      <div class="container split-grid" style="align-items:start">
-        <div>
-          <div class="notice-box-header">
-            <div>
-              <span class="section-tag">Latest Updates</span>
-              <h2>Campus Notice Board</h2>
-            </div>
-            <div class="filter-pills" id="noticeFilters" aria-label="Filter notices"></div>
-          </div>
-          <div class="notice-list" id="noticeList"></div>
-        </div>
-
-        <aside class="spotlight-card">
-          <span class="section-tag" style="color:#fbbf24">Training &amp; Placement</span>
-          <h3>Strong Industry Connections &amp; Career Launchpad</h3>
-          <p>Our dedicated Corporate Resource Center prepares students from Semester 1 in Data Structures, Full-Stack Development, Quantitative Aptitude, and Communication Skills.</p>
-          <div class="recruiter-badges" id="recruiterBadges" style="justify-content:flex-start"></div>
-          <div style="margin-top:1.4rem">
-            <a class="btn btn-primary" href="admissions.html#contact">Enquire About Placements →</a>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <!-- ===== POPULAR PROGRAMS (featured courses from data) ===== -->
-    <section class="section">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">Academic Schools</span>
-          <h2>Undergraduate &amp; Postgraduate Programs</h2>
-          <p>Industry-focused curricula designed with practical labs, live capstone projects, and summer internships.</p>
-        </div>
-        <div class="cards-grid-4" id="featuredPrograms"></div>
-      </div>
-    </section>
-
-    <!-- ===== CAMPUS LIFE / FACILITIES ===== -->
-    <section class="section section-alt">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">Life at Axis</span>
-          <h2>Modern Infrastructure Built for Learning</h2>
-          <p>Explore our specialized computer labs, central library, and athletic facilities.</p>
-        </div>
-        <div class="cards-grid-3" id="facilitiesGrid"></div>
-        <p style="text-align:center;margin-top:2rem"><a class="btn btn-outline" href="campus.html">Explore Campus Gallery →</a></p>
-      </div>
-    </section>
-
-    <!-- ===== STUDENT TESTIMONIALS (from data.testimonials) ===== -->
-    <section class="section">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag">Student Voices</span>
-          <h2>What Our Students &amp; Alumni Say</h2>
-        </div>
-        <div class="cards-grid-3" id="testimonialGrid"></div>
-      </div>
-    </section>
-
-    <!-- ===== CALL TO ACTION ===== -->
-    <section class="cta-banner">
-      <div class="container">
-        <h2>Ready to Begin Your Academic Journey?</h2>
-        <p>Apply online for the 2026–27 academic batch or calculate your merit scholarship eligibility in seconds.</p>
-        <a class="btn btn-navy" href="admissions.html">Fill Online Application</a>
-        <a class="btn btn-outline-light" href="courses.html#fees">Check Merit Scholarship</a>
-      </div>
-    </section>
-
+    <h1>Axis Drive needs its Python server</h1>
+    <p>Axis Drive is a cloud storage app (login, uploads, photos, share links, trash). It needs a server to store your files, so it cannot run on GitHub Pages.</p>
+    <p><strong>To run it on your computer:</strong> double-click <code>start-drive.bat</code> (Windows) or <code>start-drive.command</code> (Mac), or run <code>./start-drive.sh</code> (Linux). Then open <code>http://localhost:8000</code>.</p>
+    <p><strong>To run it on the cloud:</strong> deploy this folder with the included <code>Dockerfile</code> or <code>render.yaml</code>. See <code>README.md</code> for the steps.</p>
   </main>
-
-  <!-- Shared footer -->
-  <footer id="site-footer" class="site-footer"></footer>
-
-  <!-- Data file first, then the shared script -->
-  <script src="data/site-data.js"></script>
-  <script src="script.js"></script>
 </body>
 </html>

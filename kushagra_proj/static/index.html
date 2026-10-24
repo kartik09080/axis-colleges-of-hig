@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Axis Drive</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%231a73e8' d='M30 80 L5 50 L30 20 L40 30 L22 50 L40 70Z M70 80 L95 50 L70 20 L60 30 L78 50 L60 70Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- Login / sign-up screen -->
+  <section id="auth-screen" class="auth-screen hidden">
+    <div class="auth-card">
+      <div class="brand brand-big">
+        <span class="logo" aria-hidden="true">&#9650;</span> Axis Drive
+      </div>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" data-mode="login" role="tab">Log in</button>
+        <button type="button" class="tab" data-mode="signup" role="tab">Sign up</button>
+      </div>
+      <form id="auth-form" novalidate>
+        <label class="field signup-only hidden">
+          <span>Your name</span>
+          <input type="text" name="name" autocomplete="name" maxlength="80">
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" autocomplete="username" required>
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input type="password" name="password" autocomplete="current-password" required minlength="8">
+          <small class="hint signup-only hidden">At least 8 characters.</small>
+        </label>
+        <p class="form-error" id="auth-error" role="alert"></p>
+        <button type="submit" class="btn primary wide" id="auth-submit">Log in</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Main app -->
+  <div id="app-screen" class="app hidden">
+    <header class="topbar">
+      <button type="button" class="icon-btn" id="menu-toggle" aria-label="Toggle menu">&#9776;</button>
+      <div class="brand">
+        <span class="logo" aria-hidden="true">&#9650;</span> Axis Drive
+      </div>
+      <form class="search" id="search-form" role="search">
+        <span class="search-icon" aria-hidden="true">&#128269;</span>
+        <input type="search" id="search-input" placeholder="Search files and folders by name" aria-label="Search">
+      </form>
+      <div class="account">
+        <span id="user-name" class="user-name"></span>
+        <button type="button" class="avatar" id="avatar" aria-label="Account menu" title="Account"></button>
+        <div class="menu hidden" id="account-menu">
+          <div class="menu-head" id="account-email"></div>
+          <button type="button" class="menu-item" data-action="logout">Log out</button>
+        </div>
+      </div>
+    </header>
+
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="btn new-btn" id="new-btn">
+        <span aria-hidden="true">+</span> New
+      </button>
+      <nav class="nav">
+        <a href="#/drive" class="nav-item" data-nav="drive"><span class="nav-icon">&#128193;</span> My Drive</a>
+        <a href="#/photos" class="nav-item" data-nav="photos"><span class="nav-icon">&#128444;</span> Photos</a>
+        <a href="#/starred" class="nav-item" data-nav="starred"><span class="nav-icon">&#9733;</span> Starred</a>
+        <a href="#/trash" class="nav-item" data-nav="trash"><span class="nav-icon">&#128465;</span> Trash</a>
+      </nav>
+      <div class="storage">
+        <div class="storage-label">Storage</div>
+        <div class="storage-bar"><div class="storage-fill" id="storage-fill"></div></div>
+        <div class="storage-text" id="storage-text">&nbsp;</div>
+      </div>
+    </aside>
+
+    <main class="content" id="content" aria-live="polite"></main>
+
+    <!-- Hidden upload input (used by the New menu and the Upload button) -->
+    <input type="file" id="file-input" multiple class="hidden">
+
+    <!-- Upload progress panel -->
+    <div class="upload-panel hidden" id="upload-panel">
+      <div class="upload-head">
+        <span id="upload-title">Uploading</span>
+        <button type="button" class="icon-btn small" id="upload-close" aria-label="Close">&times;</button>
+      </div>
+      <ul class="upload-list" id="upload-list"></ul>
+    </div>
+
+    <!-- Drag and drop overlay -->
+    <div class="drop-overlay hidden" id="drop-overlay">
+      <div>Drop files to upload</div>
+    </div>
+
+    <!-- Items the user can pick from when the New menu is open -->
+    <div class="menu hidden" id="new-menu">
+      <button type="button" class="menu-item" data-action="new-folder">New folder</button>
+      <button type="button" class="menu-item" data-action="upload-files">File upload</button>
+    </div>
+
+    <!-- Floating menu for each file/folder -->
+    <div class="menu hidden" id="item-menu"></div>
+  </div>
+
+  <!-- Dialogs and previews are added here by app.js -->
+  <div id="modal-root"></div>
+  <div class="toast hidden" id="toast" role="status"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
