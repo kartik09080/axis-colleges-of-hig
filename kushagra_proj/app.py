@@ -270,7 +270,10 @@ def create_app(test_config=None):
         MAX_CONTENT_LENGTH=int(os.environ.get('DRIVE_MAX_UPLOAD_MB', '2048')) * 1024 * 1024,
         DEFAULT_QUOTA=int(float(os.environ.get('DRIVE_QUOTA_GB', '15')) * GB),
         SESSION_COOKIE_HTTPONLY=True,
-        SESSION_COOKIE_SAMESITE='Lax',
+        # On HTTPS the cookie must allow cross-site use: the app is often shown inside
+        # another site's frame (e.g. a preview), and SameSite=Lax would drop the login there.
+        # Changing data still needs the X-Drive-Client header, which blocks cross-site forms.
+        SESSION_COOKIE_SAMESITE='None' if os.environ.get('DRIVE_COOKIE_SECURE') == '1' else 'Lax',
         SESSION_COOKIE_SECURE=os.environ.get('DRIVE_COOKIE_SECURE') == '1',
         PERMANENT_SESSION_LIFETIME=timedelta(days=14),
     )

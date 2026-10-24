@@ -72,7 +72,7 @@ Open http://localhost:8000. On a real HTTPS domain, also set `-e DRIVE_COOKIE_SE
 | `DRIVE_SECRET_KEY` | created once and saved in the data folder | Signs login cookies. Set it yourself in the cloud. |
 | `DRIVE_QUOTA_GB` | `15` | Storage limit per user |
 | `DRIVE_MAX_UPLOAD_MB` | `2048` | Largest allowed single upload |
-| `DRIVE_COOKIE_SECURE` | off | Set to `1` when the site uses HTTPS |
+| `DRIVE_COOKIE_SECURE` | off | Set to `1` when the site uses HTTPS (cookie becomes `Secure; SameSite=None`, so login also works when the app is shown inside another site) |
 
 ## Run the tests
 
