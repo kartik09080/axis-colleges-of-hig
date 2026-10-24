@@ -60,8 +60,27 @@
   // ------------------------------------------------------------------
   // API
   // ------------------------------------------------------------------
+  // Login token: kept in localStorage and sent as a header. Cookies alone can be blocked
+  // when the app is shown inside another page (embedded preview), so we do not rely on them.
+  const TOKEN_KEY = 'axisDriveToken';
+  let memoryToken = null;
+  function getToken() {
+    try { return localStorage.getItem(TOKEN_KEY) || memoryToken; } catch (_) { return memoryToken; }
+  }
+  function setToken(token) {
+    memoryToken = token || null;
+    try {
+      if (token) localStorage.setItem(TOKEN_KEY, token);
+      else localStorage.removeItem(TOKEN_KEY);
+    } catch (_) { /* storage blocked: memory copy is still used */ }
+  }
+  function authHeaders() {
+    const token = getToken();
+    return token ? { Authorization: 'Bearer ' + token } : {};
+  }
+
   async function api(path, options = {}) {
-    const opts = { method: options.method || 'GET', headers: {}, credentials: 'same-origin' };
+    const opts = { method: options.method || 'GET', headers: authHeaders(), credentials: 'same-origin' };
     if (opts.method !== 'GET') opts.headers['X-Drive-Client'] = '1';
     if (options.body !== undefined) {
       opts.headers['Content-Type'] = 'application/json';
@@ -111,6 +130,41 @@
     $('#account-email').textContent = user.email;
   }
 
+  // Fetch a protected file with the login header and return a local blob: URL
+  async function fetchObjectUrl(path) {
+    const res = await fetch(path, { headers: authHeaders(), credentials: 'same-origin' });
+    if (!res.ok) {
+      let message = `Could not load the file (${res.status}).`;
+      try { message = (await res.json()).error || message; } catch (_) { /* not JSON */ }
+      const error = new Error(message);
+      error.status = res.status;
+      throw error;
+    }
+    return URL.createObjectURL(await res.blob());
+  }
+
+  const thumbCache = new Map();   // file id -> Promise of blob URL
+  function thumbUrl(id) {
+    if (!thumbCache.has(id)) {
+      const p = fetchObjectUrl(`/api/files/${id}/thumb`);
+      thumbCache.set(id, p);
+      p.catch(() => thumbCache.delete(id));
+    }
+    return thumbCache.get(id);
+  }
+
+  // Put a thumbnail into an <img>; if it cannot be loaded, show the fallback icon instead
+  function fillThumb(img, id, fallbackText) {
+    thumbUrl(id).then((u) => { img.src = u; }).catch(() => {
+      img.replaceWith(document.createTextNode(fallbackText));
+    });
+  }
+
+  function clearMediaCache() {
+    thumbCache.forEach((p) => p.then((u) => URL.revokeObjectURL(u), () => {}));
+    thumbCache.clear();
+  }
+
   async function loadMe() {
     try {
       state.user = await api('/api/me');
@@ -139,6 +193,7 @@
 
   function showAuth() {
     state.user = null;
+    clearMediaCache();
     $('#app-screen').classList.add('hidden');
     $('#auth-screen').classList.remove('hidden');
     $('#auth-form [name="password"]').value = '';
@@ -176,6 +231,8 @@
         method: 'POST', body: payload,
       });
       fields.password.value = '';
+      setToken(user.token);
+      delete user.token;
       enterApp(user);
     } catch (err) {
       errorBox.textContent = err.message;
@@ -364,10 +421,13 @@
   }
 
   function downloadFile(item) {
-    const a = el('a', { href: `/api/files/${item.id}/content?download=1`, download: item.name });
-    document.body.append(a);
-    a.click();
-    a.remove();
+    fetchObjectUrl(`/api/files/${item.id}/content?download=1`).then((u) => {
+      const a = el('a', { href: u, download: item.name });
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(u), 60000);
+    }).catch(notifyError);
   }
 
   function copyText(text, input) {
@@ -521,7 +581,7 @@
       else if (e.key === 'ArrowRight') step(1);
     };
     document.addEventListener('keydown', onKey);
-    preview = { overlay, body, title, counter, prevBtn, nextBtn, files, index, onKey };
+    preview = { overlay, body, title, counter, prevBtn, nextBtn, files, index, onKey, urls: [], loadSeq: 0 };
     showPreviewItem();
 
     function step(delta) {
@@ -544,28 +604,42 @@
     p.prevBtn.disabled = p.index === 0;
     p.nextBtn.disabled = p.index === p.files.length - 1;
     p.body.replaceChildren();   // removing old media also stops playback
+    p.urls.forEach((u) => URL.revokeObjectURL(u));
+    p.urls = [];
 
     const canInline = INLINE.has(item.mime);
-    if (item.kind === 'image' && canInline) {
-      p.body.append(el('img', { src: url, alt: item.name }));
-    } else if (item.kind === 'video' && canInline) {
-      p.body.append(el('video', { src: url, controls: true, autoplay: true, preload: 'metadata' }));
-    } else if (item.kind === 'audio' && canInline) {
-      p.body.append(el('audio', { src: url, controls: true, autoplay: true, preload: 'metadata' }));
-    } else if (item.kind === 'pdf' && canInline) {
-      p.body.append(el('iframe', { src: url, title: item.name }));
-    } else {
+    if (!canInline || !['image', 'video', 'audio', 'pdf'].includes(item.kind)) {
       p.body.append(el('div', { class: 'nopreview' },
         el('div', { class: 'big', text: iconFor(item) }),
         el('p', { text: 'No preview for this file type.' }),
         el('button', { type: 'button', class: 'btn', text: 'Download', onclick: () => downloadFile(item) })));
+      return;
     }
+
+    const token = ++p.loadSeq;
+    p.body.append(el('p', { class: 'nopreview', text: 'Loading…' }));
+    fetchObjectUrl(url).then((blobUrl) => {
+      // The user may have moved on to another file while this one was loading
+      if (preview !== p || p.loadSeq !== token) { URL.revokeObjectURL(blobUrl); return; }
+      p.urls.push(blobUrl);
+      let media;
+      if (item.kind === 'image') media = el('img', { src: blobUrl, alt: item.name });
+      else if (item.kind === 'video') media = el('video', { src: blobUrl, controls: true, autoplay: true, preload: 'metadata' });
+      else if (item.kind === 'audio') media = el('audio', { src: blobUrl, controls: true, autoplay: true, preload: 'metadata' });
+      else media = el('iframe', { src: blobUrl, title: item.name });
+      p.body.replaceChildren(media);
+    }).catch((e) => {
+      if (preview !== p || p.loadSeq !== token) return;
+      p.body.replaceChildren(el('div', { class: 'nopreview' },
+        el('p', { text: e.message || 'Could not load this file.' })));
+    });
   }
 
   function closePreview() {
     if (!preview) return;
     document.removeEventListener('keydown', preview.onKey);
     preview.overlay.remove();
+    preview.urls.forEach((u) => URL.revokeObjectURL(u));
     preview = null;
   }
 
@@ -632,6 +706,8 @@
       const xhr = new XMLHttpRequest();
       xhr.open('POST', '/api/files');
       xhr.setRequestHeader('X-Drive-Client', '1');
+      const token = getToken();
+      if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
       xhr.upload.onprogress = (e) => { if (e.lengthComputable) ui.setProgress(e.loaded / e.total); };
       xhr.onload = () => {
         let data = {};
@@ -740,12 +816,18 @@
   }
 
   // Card for a folder or file (My Drive, Starred, Search)
+  function thumbNode(item) {
+    if (!item.has_thumb) return iconFor(item);
+    const img = el('img', { alt: '', loading: 'lazy' });
+    fillThumb(img, item.id, iconFor(item));
+    return img;
+  }
+
   function makeCard(item, ctx) {
     const isFolder = item.type === 'folder';
     const thumb = isFolder
       ? el('div', { class: 'card-thumb folder', text: '📁' })
-      : el('div', { class: 'card-thumb' },
-        item.has_thumb ? el('img', { src: `/api/files/${item.id}/thumb`, alt: '', loading: 'lazy' }) : iconFor(item));
+      : el('div', { class: 'card-thumb' }, thumbNode(item));
     const more = el('button', {
       type: 'button', class: 'more-btn', title: 'More actions', 'aria-label': `More actions for ${item.name}`,
       onclick: (e) => { e.stopPropagation(); openItemMenu(item, e.currentTarget, ctx); },
@@ -843,7 +925,7 @@
 
   function photoTile(f, ctx) {
     const media = f.has_thumb
-      ? el('img', { src: `/api/files/${f.id}/thumb`, alt: f.name, loading: 'lazy' })
+      ? (() => { const img = el('img', { alt: f.name, loading: 'lazy' }); fillThumb(img, f.id, '🖼️'); return img; })()
       : el('span', { text: f.kind === 'video' ? '🎞️' : '🖼️' });
     return el('div', {
       class: 'photo' + (f.has_thumb ? '' : ' fallback'), tabindex: '0', role: 'button', title: f.name,
@@ -975,6 +1057,7 @@
       if (action && action.dataset.action === 'logout') {
         hideMenus();
         try { await api('/api/logout', { method: 'POST' }); } catch (_) { /* ignore */ }
+        setToken(null);
         showAuth();
       }
     });

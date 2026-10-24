@@ -119,6 +119,18 @@ class AuthTests(DriveTestCase):
         self.assertEqual(res.status_code, 429)
         drive_app._login_failures.clear()
 
+    def test_token_login_works_without_cookies(self):
+        """Browsers that block cookies (embedded previews) must still be able to log in."""
+        email = self.signup('token1@example.com')
+        token = self.app.test_client().post(
+            '/api/login', json={'email': email, 'password': 'secret-pass-1'}, headers=H).get_json()['token']
+        bare = self.app.test_client()          # no cookie jar contents at all
+        self.assertEqual(bare.get('/api/me').status_code, 401)
+        auth = {'Authorization': 'Bearer ' + token}
+        self.assertEqual(bare.get('/api/me', headers=auth).status_code, 200)
+        self.assertEqual(bare.get('/api/list', headers=auth).status_code, 200)
+        self.assertEqual(bare.get('/api/me', headers={'Authorization': 'Bearer ' + token + 'x'}).status_code, 401)
+
     def test_api_requires_login(self):
         self.assertEqual(self.app.test_client().get('/api/list').status_code, 401)
 

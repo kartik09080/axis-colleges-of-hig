@@ -21,6 +21,7 @@ from datetime import timedelta
 from functools import wraps
 
 from flask import Flask, abort, g, jsonify, request, send_file, session
+from itsdangerous import BadSignature, URLSafeTimedSerializer
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import db
@@ -32,6 +33,7 @@ EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]{2,}$')
 
 # Login protection: after 5 wrong passwords, the email is locked for 15 minutes.
 LOGIN_WINDOW_SECONDS = 15 * 60
+TOKEN_MAX_AGE = 30 * 24 * 3600   # login token is valid for 30 days
 LOGIN_MAX_FAILURES = 5
 _login_failures = {}
 
@@ -105,6 +107,25 @@ def user_payload(row):
         'quota': row['quota_bytes'],
         'used': used_bytes(row['id']),
     }
+
+
+def make_token(uid):
+    """Signed login token. The browser keeps it and sends it in the Authorization header,
+    so login works even when the browser blocks cookies (e.g. inside an embedded preview)."""
+    from flask import current_app
+    return current_app.config['TOKEN_SERIALIZER'].dumps(uid)
+
+
+def current_uid():
+    """User id from the Authorization header (Bearer token) or, as a fallback, the session cookie."""
+    from flask import current_app
+    auth = request.headers.get('Authorization', '')
+    if auth.startswith('Bearer '):
+        try:
+            return current_app.config['TOKEN_SERIALIZER'].loads(auth[7:], max_age=TOKEN_MAX_AGE)
+        except BadSignature:
+            return None
+    return session.get('uid')
 
 
 def serialize_file(row):
@@ -292,6 +313,8 @@ def create_app(test_config=None):
         with open(key_file, encoding='utf-8') as fh:
             app.config['SECRET_KEY'] = fh.read().strip()
 
+    app.config['TOKEN_SERIALIZER'] = URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='axis-drive-auth')
+
     db.init_app(app)
     with app.app_context():
         db.init_db()
@@ -323,7 +346,7 @@ def create_app(test_config=None):
     def login_required(view):
         @wraps(view)
         def wrapper(*args, **kwargs):
-            uid = session.get('uid')
+            uid = current_uid()
             user = load_user(uid) if uid else None
             if user is None:
                 return err('Please log in first.', 401)
@@ -369,7 +392,9 @@ def create_app(test_config=None):
         session.clear()
         session.permanent = True
         session['uid'] = cur.lastrowid
-        return jsonify(user_payload(load_user(cur.lastrowid))), 201
+        payload = user_payload(load_user(cur.lastrowid))
+        payload['token'] = make_token(cur.lastrowid)
+        return jsonify(payload), 201
 
     @app.post('/api/login')
     def login():
@@ -389,7 +414,9 @@ def create_app(test_config=None):
         session.clear()
         session.permanent = True
         session['uid'] = row['id']
-        return jsonify(user_payload(row))
+        payload = user_payload(row)
+        payload['token'] = make_token(row['id'])
+        return jsonify(payload)
 
     @app.post('/api/logout')
     def logout():
@@ -398,7 +425,7 @@ def create_app(test_config=None):
 
     @app.get('/api/me')
     def me():
-        uid = session.get('uid')
+        uid = current_uid()
         row = load_user(uid) if uid else None
         if row is None:
             return err('Not logged in.', 401)
