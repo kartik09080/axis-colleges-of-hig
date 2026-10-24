@@ -1,173 +1,126 @@
-# Axis Colleges of Higher Education — Dynamic College Website (`kushagra_proj`)
+# Axis Drive
 
-A complete **multi-page, data-driven college website** built with **HTML5, CSS3 and basic Vanilla JavaScript**.
-Everything lives inside this one folder, so it works by double-clicking `index.html` (offline) and can be
-**published as a static website** on any free host.
+A Google Drive / Google Photos style cloud storage app, built with Python (Flask + SQLite) and plain HTML, CSS and JavaScript.
+The same code runs on your computer and in the cloud.
 
----
+## Features
 
-## 1. Folder structure
+- **Accounts:** sign up and log in. Passwords are stored as salted hashes. Login is limited to 5 wrong tries per email every 15 minutes.
+- **Upload:** many files at once, drag and drop anywhere on the page, with a progress bar for each file.
+- **My Drive:** create, rename, move and delete folders and files. Breadcrumbs show where you are.
+- **Photos:** a timeline of your photos and videos grouped by date. Dates come from the photo's EXIF "date taken", otherwise the upload date. Thumbnails are generated automatically.
+- **Preview:** images, videos, audio and PDFs open in the browser. Other files can be downloaded.
+- **Starred, Search, Download:** star files, search by name across all folders, and download any file.
+- **Share links:** create a link at `/s/<token>` that anyone can open without logging in. Revoke it any time.
+- **Trash:** delete moves items to the trash. You can restore them, delete them forever, or empty the trash.
+- **Storage:** a usage bar with a quota per user (default 15 GB).
 
-```text
-kushagra_proj/
-├── index.html          Home page (hero, animated stats, notice board filter, programs, testimonials)
-├── about.html          About Us (legacy, vision/mission, director's message, colleges table, FAQ accordion)
-├── courses.html        Courses & Fees (search, stream filter, course cards, merit scholarship calculator)
-├── campus.html         Campus & Events (filterable photo gallery, lightbox viewer, event pass registration)
-├── admissions.html     Admissions & Contact (steps, validated application form, tracking, enquiry form)
-├── admin.html          Staff Admin Panel (login, manage ALL content, applications, enquiries, backup)
-├── style.css           Shared stylesheet for public pages AND admin panel
-├── script.js           Shared public JavaScript (renders layout & lists, forms, filters, modals)
-├── admin.js            Admin panel JavaScript (add / edit / delete, settings, export/import)
-├── data/
-│   └── site-data.js    THE CONTENT FILE: courses, notices, events, gallery, FAQs, settings, etc.
-├── images/             Local campus photos (work offline)
-├── .nojekyll           Tells GitHub Pages to serve the files as they are
-├── 404.html            Page shown for missing links
-├── robots.txt          Search engine settings (hides admin page)
-├── start-website.bat   One-click launcher for Windows
-├── start-website.command  One-click launcher for macOS
-├── start-website.sh    One-click launcher for Linux
-└── README.md           This guide
-```
+## Run it on your computer
 
----
+You need Python 3.9 or newer. (Python is the only thing to install. The launcher installs everything else.)
 
-## 2. How to run it
+| System | What to do |
+|---|---|
+| Windows | Double-click **`start-drive.bat`** |
+| Mac | Double-click **`start-drive.command`** (if macOS blocks it, right-click, then Open) |
+| Linux | Run `./start-drive.sh` |
 
-**Easiest — one click (no typing):**
-| Computer | File to double-click | What happens |
-|----------|----------------------|--------------|
-| Windows  | `start-website.bat`  | Starts the server and opens http://localhost:8000 |
-| macOS    | `start-website.command` | Opens Terminal, starts the server, opens the browser (first time: right-click → Open) |
-| Linux    | `start-website.sh` (or `./start-website.sh`) | Same as above |
+The first run takes about a minute. The browser then opens **http://localhost:8000**. Keep the window open while you use the app. Close it to stop.
 
-Keep the launcher window open while you use the website. To share with someone on the **same Wi-Fi**, the Windows launcher shows an address like `http://192.168.1.5:8000` — send that to them. For people outside your network, share the GitHub Pages link (see section 6). Close it (or press Ctrl + C) to stop.
-Needs **Python 3** installed (Windows: tick "Add to PATH" during install). If Python is missing, the home page opens directly from the file instead.
+- Your files are kept in the `data_store/` folder next to the launcher. Back up that folder to keep your data.
+- To use a different port, set `PORT` first, for example `PORT=9000 ./start-drive.sh`.
 
-**Simplest of all:** double-click `index.html` (works without any server; admin panel is `admin.html`).
+Other computers on the same Wi-Fi can open the app at `http://<your-computer-ip>:8000`.
 
-**Option A — double-click (no server needed)**
-Open `index.html` in Chrome / Edge / Firefox. Use `admin.html` for the staff panel.
+## Run it on the cloud
 
-**Option B — local web server (recommended for testing)**
+### Option A: Render (simplest)
+
+Render needs a **paid** plan (`starter`) for a persistent disk. Without a disk, uploads are lost on restart.
+
+1. Push this repository to GitHub.
+2. In Render, choose **New > Web Service**, then pick the repository.
+3. Set **Root Directory** to `kushagra_proj` and **Runtime** to **Docker**.
+4. Add a **Disk**: mount path `/data`, size 10 GB or more.
+5. Add these environment variables (the `render.yaml` file in this folder lists them):
+   - `DRIVE_DATA_DIR` = `/data`
+   - `DRIVE_SECRET_KEY` = any long random text (for example, click *Generate*)
+   - `DRIVE_COOKIE_SECURE` = `1`
+   - `DRIVE_QUOTA_GB` = `15` (optional, storage per user)
+   - `DRIVE_MAX_UPLOAD_MB` = `2048` (optional, largest single upload)
+6. Deploy. Open the URL Render gives you and sign up.
+
+### Option B: any Docker host
+
 ```bash
 cd kushagra_proj
-python3 -m http.server 8000
+docker build -t axis-drive .
+docker run -p 8000:8000 -v axis-drive-data:/data \
+  -e DRIVE_SECRET_KEY="$(python3 -c 'import secrets;print(secrets.token_hex(32))')" \
+  axis-drive
 ```
-Then open <http://localhost:8000>.
 
-**Staff login:** open `admin.html` → password is `axis@2026` by default.
-**Change it before publishing:** `data/site-data.js` → `settings.adminPassword`
-(or in the admin panel: *Website Settings → Online Forms & Security*).
+Open http://localhost:8000. On a real HTTPS domain, also set `-e DRIVE_COOKIE_SECURE=1`.
 
----
+## Use it on Android (phone app)
 
-## 3. How the website is "dynamic"
+Axis Drive is a web app that can be installed like a phone app. It needs the cloud server
+(Render or similar) to be online, because your files live on the server.
 
-| Part | How it works |
-|------|--------------|
-| **Content** | Every list (notices, courses, events, gallery, FAQs, testimonials, colleges, stats, ticker) is stored as data in `data/site-data.js`. `script.js` builds the HTML from that data. |
-| **Shared layout** | The top bar, navigation menu and footer are generated by `script.js` on every page, so there is no copy-paste HTML. |
-| **Data binding** | Text tagged with `data-bind="settings.phone"` is replaced with the value from the data file. |
-| **Admin panel** | Staff add / edit / delete items through popup forms. Changes are saved in the browser (`localStorage`) and show up immediately on the website. |
-| **Publishing changes** | Admin panel → *Backup & Publish* → **Download site-data.js** → replace `data/site-data.js` → re-upload the folder. |
-| **Forms** | Admission, enquiry and event forms are validated in the browser and saved locally. If a *form endpoint* URL is set, they are also sent online (see section 5). |
+**Install as an app (no APK needed):**
+1. Open the Axis Drive website in **Chrome** on your Android phone (it must be an `https://` address).
+2. Tap the **⋮** menu, then **Install app** (or **Add to Home screen**).
+3. The Axis Drive icon appears on your home screen and opens full-screen.
 
----
+**Make a real APK file (optional):**
+1. Put the site online (see *Run it on the cloud*) and copy its `https://` address.
+2. Go to https://www.pwabuilder.com, paste the address, and click **Start**.
+3. Choose **Android** and then **Generate package**. Download the zip and install the `.apk` on your phone
+   (allow installing from unknown sources the first time).
 
-## 4. Features (for demo & viva)
+## Settings (environment variables)
 
-**Public website**
-1. Responsive navbar with mobile hamburger menu.
-2. Scrolling announcement ticker in the top bar.
-3. Animated counters (count-up animation with `setInterval`).
-4. Notice board filter — categories are generated automatically from the data.
-5. Course search (live, `input` event) + stream filter buttons.
-6. Merit scholarship & fee estimator (slab discount + hostel charge, Indian number format).
-7. FAQ accordion (open / close with `classList.toggle`).
-8. Photo gallery filter + lightbox (Next / Prev buttons, arrow keys and Esc).
-9. Event registration popup that generates a Pass ID.
-10. Admission form with full validation (name, email, 10-digit Indian mobile, DOB, marks 0–100, consent).
-11. `?course=btech-cse` links pre-select the course in the admission form.
-12. Application tracking with Reference ID + mobile number.
-13. Enquiry (contact) form.
+| Variable | Default | Meaning |
+|---|---|---|
+| `PORT` | `8000` | Port the server listens on |
+| `DRIVE_HOST` | `0.0.0.0` | Address to listen on (local runs) |
+| `DRIVE_DATA_DIR` | `./data_store` | Where the database, files and thumbnails are stored |
+| `DRIVE_SECRET_KEY` | created once and saved in the data folder | Signs login cookies. Set it yourself in the cloud. |
+| `DRIVE_QUOTA_GB` | `15` | Storage limit per user |
+| `DRIVE_MAX_UPLOAD_MB` | `2048` | Largest allowed single upload |
+| `DRIVE_COOKIE_SECURE` | off | Set to `1` when the site uses HTTPS (cookie becomes `Secure; SameSite=None`, so login also works when the app is shown inside another site) |
 
-**Admin panel**
-- Dashboard with counts and quick actions.
-- Notices, Courses & Fees, Campus Events, Gallery, Testimonials, FAQs — add / edit / delete.
-- Website settings: college name, contact details, hero text, tickers, counters, About text, admissions open/closed.
-- Applications: change status (Pending / Approved / Waitlisted / Rejected), filter, delete, export CSV.
-- Enquiries and event passes: view, delete, export CSV.
-- Backup (JSON) download and restore; reset to file defaults; download new `site-data.js`.
+## Run the tests
 
----
+```bash
+python -m venv .venv
+. .venv/bin/activate        # on Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python -m unittest discover -s tests -v
+```
 
-## 5. Online form collection (optional but important for a real college)
+## Project layout
 
-A browser alone cannot receive forms from students on the internet. To receive online applications:
+```
+app.py            Flask server: accounts, folders, files, trash, sharing, API
+db.py             SQLite database setup and helpers
+media.py          File types, thumbnails (Pillow) and photo dates (EXIF)
+static/           The web app: index.html, app.js, style.css, share.html, share.js
+tests/            Automated tests for the API
+start-drive.bat   Windows launcher        start-drive.sh / .command   Linux / Mac launchers
+Dockerfile        Container image for the cloud
+render.yaml       Render settings (see Option A)
+data_store/       Created at runtime. Holds your files. Not stored in Git.
+```
 
-1. Create a free form endpoint (for example **Formspree** → copy the URL such as `https://formspree.io/f/xxxxxx`).
-2. Admin panel → *Website Settings → Form endpoint URL* → paste it → Save → Download `site-data.js` → replace the file.
-3. Every admission, enquiry and event submission is now also POSTed (as JSON) to that address.
+## Notes and limits
 
-Without an endpoint the project runs in **demo mode**: data stays in the browser where the form was filled.
-
----
-
-## 6. How to publish (make it live)
-
-**Option 1 — GitHub Pages (already set up in this repository)**
-- The workflow `.github/workflows/static.yml` publishes the repository. A root `index.html` redirects visitors to `kushagra_proj/index.html`.
-- It runs automatically when the branch is merged into `main` (or when run manually from the Actions tab).
-- Live address: **https://kartik09080.github.io/axis-colleges-of-hig/** (opens the college website)
-- Direct address: https://kartik09080.github.io/axis-colleges-of-hig/kushagra_proj/
-- Update the website later: change files (or download a new `data/site-data.js` from the admin panel), commit and merge into `main`. The site updates in 1–2 minutes.
-
-**Option 2 — Netlify Drop (no GitHub needed)**
-- Open <https://app.netlify.com/drop> and drag the `kushagra_proj` folder onto the page. You get a public link instantly.
-
-**Option 3 — College web hosting:** upload all files inside `kushagra_proj` to the `public_html` folder with FTP or cPanel File Manager.
-
-**Before going live, change these:**
-1. Admin password: `data/site-data.js` → `settings.adminPassword` (default `axis@2026` is public).
-2. Online form endpoint (optional): `settings.formEndpoint` → paste a Formspree URL to receive applications by email.
-3. Check contact details and fees in `data/site-data.js` (or in the admin panel).
-
-**Photos:** upload new photos into `images/` and type the path (e.g. `images/new-photo.jpg`) in the admin gallery form.
-
----
-
-## 7. Viva notes — key concepts used
-
-| Concept | Where to find it |
-|---------|------------------|
-| Semantic HTML5 (`header`, `nav`, `main`, `section`, `article`, `figure`, `table`, `form`, `footer`) | All `.html` pages |
-| CSS variables, Flexbox, Grid, media queries | `style.css` (sections 1, 8, 20) |
-| DOM selection (`querySelector`, `getElementById`) | `script.js` helpers `$()`, `$$()` |
-| Building HTML from data (`map`, `join`, template strings) | `renderNotices()`, `renderCourses()`, … |
-| Events (`click`, `input`, `submit`, `keydown`) and event delegation (`closest`) | `initModalControls()`, `renderFaqs()` |
-| Form validation with regular expressions | `isValidEmail()`, `isValidMobile()` |
-| Modals / popups | `openModal()`, `closeModal()`, `.modal-overlay` |
-| `localStorage` and `JSON.parse / JSON.stringify` | `getRecords()`, `saveRecords()`, `loadContent()` |
-| Reading URL parameters | `new URLSearchParams(location.search)` |
-| `fetch` (sending data to an online form service) | `sendToEndpoint()` |
-| Separation of concerns (content / style / behaviour) | `data/site-data.js`, `style.css`, `script.js` |
-| CSV export via `Blob` and a temporary download link | `downloadFile()`, `toCSV()` in `admin.js` |
-
-**Limitations to mention honestly in a viva**
-- The admin password check runs in the browser, so it is a demo-level lock, not real security. A real college portal needs a server-side login and a database.
-- Without a form endpoint, submissions stay in the browser where they were made.
-- Edits made in the admin panel stay in that browser until the new `site-data.js` is downloaded and uploaded.
-
----
-
-## 8. Quick edit guide (without the admin panel)
-
-Open `data/site-data.js` in a text editor:
-
-- Add a notice → copy one `{ id: 'n1', category: ..., date: ..., title: ..., body: ... }` block inside `notices: [ ... ]`.
-- Change a fee → find the course and edit `fee: 95000`.
-- Change phone number → `settings.phone`.
-
-Keep the commas and quotes exactly as they are, then refresh the browser.
+- Files are saved under random names on the disk. Their real names are only in the database.
+- Only safe file types (images, videos, audio, PDF) open in the browser. Everything else is always downloaded, so an uploaded HTML file cannot run scripts on the site.
+- Thumbnails are made for JPEG, PNG, GIF, WebP and BMP. HEIC photos from iPhones show a generic icon, but the original file still opens and downloads.
+- Drag-and-drop uploads files. Dragging whole folders is not supported yet; select the files inside them instead.
+- Share links give access to one file. Folder sharing is not included yet.
+- Run only **one** server process. The login-attempt limit is kept in memory, so several processes would each count separately. The Docker image already runs one process.
+- This is a demo-grade app. Before you store important or private data, add HTTPS, regular backups of the data folder, and a review of the security settings.
+- GitHub Pages only serves static files, so it cannot run this app. Use the launcher or a cloud host.
+- The phone app is a web app (PWA). It needs internet to reach your server. Files are not cached on the phone.

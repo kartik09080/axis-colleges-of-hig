@@ -1,0 +1,8 @@
+# Runtime data (uploaded files, database, secret key) - never commit
+data_store/
+# Local Python environment created by start-drive.*
+.venv/
+venv/
+__pycache__/
+*.pyc
+.env

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Shared file - Axis Drive</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%231a73e8' d='M30 80 L5 50 L30 20 L40 30 L22 50 L40 70Z M70 80 L95 50 L70 20 L60 30 L78 50 L60 70Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css?v=__ASSET_VERSION__">
+  <style>
+    .share-page { min-height: 100%; display: flex; flex-direction: column; }
+    .share-head { background: #fff; border-bottom: 1px solid var(--line); padding: 14px 20px; }
+    .share-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .share-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; width: 100%; max-width: 860px; padding: 22px; box-shadow: var(--shadow); text-align: center; }
+    .share-card h1 { font-size: 20px; font-weight: 500; margin: 6px 0 4px; word-break: break-word; }
+    .share-meta { color: var(--muted); margin-bottom: 16px; }
+    .share-stage { background: #202124; border-radius: 10px; min-height: 280px; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 8px; }
+    .share-stage img, .share-stage video { max-width: 100%; max-height: 70vh; display: block; }
+    .share-stage audio { width: min(480px, 90%); }
+    .share-stage iframe { width: 100%; height: 70vh; border: 0; background: #fff; border-radius: 6px; }
+    .share-stage .nopreview { color: #dadce0; font-size: 48px; padding: 30px; }
+    .share-actions { margin-top: 18px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .share-error { padding: 40px 10px; }
+    .share-error .big { font-size: 56px; }
+  </style>
+</head>
+<body>
+  <div class="share-page">
+    <header class="share-head">
+      <a class="brand" href="/" style="text-decoration:none"><span class="logo" aria-hidden="true">&#9650;</span> Axis Drive</a>
+    </header>
+    <main class="share-main">
+      <section class="share-card" id="share-card" aria-live="polite">
+        <p class="hint">Loading…</p>
+      </section>
+    </main>
+  </div>
+  <script src="/share.js?v=__ASSET_VERSION__"></script>
+</body>
+</html>
