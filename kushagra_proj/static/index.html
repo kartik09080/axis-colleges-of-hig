@@ -117,9 +117,5 @@
   <div class="toast hidden" id="toast" role="status"></div>
 
   <script src="/app.js?v=__ASSET_VERSION__"></script>
-  <script>
-    // Service worker lets Android/Chrome install the app (no caching; see static/sw.js)
-    if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js").catch(function () {}); }
-  </script>
 </body>
 </html>

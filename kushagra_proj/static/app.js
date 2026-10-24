@@ -1122,5 +1122,15 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', init);
+  // Service worker: lets Chrome/Android install the app. It does not cache data (see sw.js).
+  function registerServiceWorker() {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => { /* optional feature */ });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    registerServiceWorker();
+    init();
+  });
 })();
