@@ -41,7 +41,7 @@ window.AXIS_DATA = {
        Formspree endpoint like https://formspree.io/f/xxxx). When set, every
        admission, enquiry and event form is ALSO sent to that URL so that the
        college receives it on its own email/dashboard. Leave "" for demo mode. */
-    formEndpoint: '',
+    formEndpoint: 'https://formspree.io/f/mrppbnap',
 
     /* Password for admin.html. CHANGE THIS before publishing!
        (Client-side protection only - suitable for a college project demo.) */
